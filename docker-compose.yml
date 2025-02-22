@@ -11,7 +11,7 @@ services:
       - app-network
 
   my-app:
-    build: ./frontend/my-app
+    build: ./my-app
     ports:
       - "3000:3000"
     environment:
