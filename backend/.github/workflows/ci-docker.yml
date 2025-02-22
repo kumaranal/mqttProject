@@ -1,0 +1,30 @@
+name: CI using Docker Container
+
+# Trigger on pushes and pull requests to the main branch
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    # Although the job host is ubuntu-latest, the steps below run inside the specified Docker container.
+    runs-on: ubuntu-latest
+
+    # This is the Docker image that will be used for the job's environment.
+    container:
+      image: node:18-alpine
+
+    steps:
+      # Step 1: Check out your repository's code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 3: Run your test suite (e.g., using Jest)
+      - name: Run tests
+        run: npm test
