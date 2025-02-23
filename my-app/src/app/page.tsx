@@ -6,26 +6,26 @@ import io from "socket.io-client";
 const socket = io("http://localhost:4000");
 
 export default function Home() {
-  const [dbData, setDbData] = useState(null);
+  const [userUpdate, setUserUpdate] = useState(null);
   const [mqttData, setMqttData] = useState(null);
 
   useEffect(() => {
-    // Listen for real-time database update events
-    socket.on("dbUpdate", (data) => {
-      console.log("Received dbUpdate:", data);
-      setDbData(data);
+    // Listen for real-time user update events from the database
+    socket.on("userUpdated", (data) => {
+      console.log("Received userUpdated:", data);
+      setUserUpdate(data);
     });
 
-    // Listen for MQTT messages that are re-emitted through Socket.IO
-    socket.on("mqttMessage", (data) => {
-      console.log("Received mqttMessage:", data);
+    // Listen for MQTT messages re-emitted through Socket.IO
+    socket.on("mqtt_message", (data) => {
+      console.log("Received mqtt_message:", data);
       setMqttData(data);
     });
 
-    // Cleanup listeners on unmount
+    // Cleanup listeners on component unmount
     return () => {
-      socket.off("dbUpdate");
-      socket.off("mqttMessage");
+      socket.off("userUpdated");
+      socket.off("mqtt_message");
     };
   }, []);
 
@@ -34,11 +34,11 @@ export default function Home() {
       <h1>Real-Time Updates</h1>
 
       <section style={{ marginBottom: "2rem" }}>
-        <h2>Database Updates</h2>
-        {dbData ? (
-          <pre>{JSON.stringify(dbData, null, 2)}</pre>
+        <h2>User Updates (Database)</h2>
+        {userUpdate ? (
+          <pre>{JSON.stringify(userUpdate, null, 2)}</pre>
         ) : (
-          <p>No database updates received.</p>
+          <p>No user updates received.</p>
         )}
       </section>
 
@@ -53,5 +53,3 @@ export default function Home() {
     </div>
   );
 }
-
-///details

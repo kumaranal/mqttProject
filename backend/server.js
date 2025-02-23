@@ -11,6 +11,8 @@ const io = socketIo(server, {
         methods: ['GET', 'POST']
     }
 });
+// Attach the Socket.IO instance to the app so routes can access it
+app.set('socketio', io);
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
