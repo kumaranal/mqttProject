@@ -1,55 +1,37 @@
+// src/app/page.tsx
 "use client";
-import { useEffect, useState } from "react";
-import io from "socket.io-client";
 
-// Initialize socket connection to your backend (adjust the URL if necessary)
-const socket = io("http://localhost:4000");
+import dynamic from "next/dynamic";
+import ProtectedRoute from "./components/ProtectedRoute";
+import SensorData from "./components/SensorData";
+import DarkModeToggle from "./components/DarkModeToggle";
 
-export default function Home() {
-  const [userUpdate, setUserUpdate] = useState(null);
-  const [mqttData, setMqttData] = useState(null);
+// Dynamically load ChartComponent (client-side only)
+const ChartComponent = dynamic(() => import("./components/ChartComponent"), {
+  ssr: false,
+});
 
-  useEffect(() => {
-    // Listen for real-time user update events from the database
-    socket.on("userUpdated", (data) => {
-      console.log("Received userUpdated:", data);
-      setUserUpdate(data);
-    });
-
-    // Listen for MQTT messages re-emitted through Socket.IO
-    socket.on("mqtt_message", (data) => {
-      console.log("Received mqtt_message:", data);
-      setMqttData(data);
-    });
-
-    // Cleanup listeners on component unmount
-    return () => {
-      socket.off("userUpdated");
-      socket.off("mqtt_message");
-    };
-  }, []);
-
+export default function Dashboard() {
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Real-Time Updates</h1>
-
-      <section style={{ marginBottom: "2rem" }}>
-        <h2>User Updates (Database)</h2>
-        {userUpdate ? (
-          <pre>{JSON.stringify(userUpdate, null, 2)}</pre>
-        ) : (
-          <p>No user updates received.</p>
-        )}
-      </section>
-
-      <section>
-        <h2>MQTT Messages</h2>
-        {mqttData ? (
-          <pre>{JSON.stringify(mqttData, null, 2)}</pre>
-        ) : (
-          <p>No MQTT messages received.</p>
-        )}
-      </section>
-    </div>
+    <ProtectedRoute allowedRoles={["admin", "user"]}>
+      <main>
+        <header
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <h1>Sensor Dashboard</h1>
+          <DarkModeToggle />
+        </header>
+        <section style={{ marginTop: "2rem" }}>
+          <SensorData />
+        </section>
+        <section style={{ marginTop: "2rem" }}>
+          <ChartComponent />
+        </section>
+      </main>
+    </ProtectedRoute>
   );
 }
